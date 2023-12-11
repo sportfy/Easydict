@@ -58,10 +58,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EZTranslateSimpleWord : NSObject
 
-/// 单词或短语
-@property (nonatomic, copy) NSString *word;
 /// 单词或短语属性
 @property (nonatomic, copy, nullable) NSString *part; // adj.
+/// 单词或短语
+@property (nonatomic, copy) NSString *word;
 /// 单词或短语意思
 @property (nonatomic, strong, nullable) NSArray<NSString *> *means; // 美好的
 
@@ -83,12 +83,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) NSArray<EZTranslateExchange *> *exchanges;
 /// 中文查词时会有，单词短语数组
 @property (nonatomic, copy, nullable) NSArray<EZTranslateSimpleWord *> *simpleWords;
-
 /// 标签：四级，六级，考研
 @property (nonatomic, copy, nullable) NSArray<NSString *> *tags;
-
 /// 词源
 @property (nonatomic, copy, nullable) NSString *etymology;
+/// 同义词
+@property (nonatomic, copy, nullable) NSArray<EZTranslatePart *> *synonyms;
+/// 反义词
+@property (nonatomic, copy, nullable) NSArray<EZTranslatePart *> *antonyms;
+/// 搭配
+@property (nonatomic, copy, nullable) NSArray<EZTranslatePart *> *collocation;
 
 @end
 

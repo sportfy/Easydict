@@ -17,10 +17,10 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import "FWEncryptorAES.h"
-#import <WebKit/WebKit.h>
 #import "NSData+EZMD5.h"
 #import "EZNetworkManager.h"
 #import "EZConfiguration.h"
+#import "Easydict-Swift.h"
 
 static NSString *const kYoudaoTranslatetURL = @"https://fanyi.youdao.com";
 static NSString *const kYoudaoDictURL = @"https://dict.youdao.com";
@@ -183,7 +183,7 @@ static NSString *const kYoudaoDictURL = @"https://dict.youdao.com";
 }
 
 - (NSString *)link {
-    return @"http://fanyi.youdao.com";
+    return kYoudaoTranslatetURL;
 }
 
 /**
@@ -195,7 +195,7 @@ static NSString *const kYoudaoDictURL = @"https://dict.youdao.com";
     NSString *encodedWord = [queryModel.queryText stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSString *foreignLangauge = [self youdaoDictForeignLangauge:queryModel];
     if (!foreignLangauge) {
-        return nil;
+        return self.link;
     }
     return [NSString stringWithFormat:@"%@/result?word=%@&lang=%@", kYoudaoDictURL, encodedWord, foreignLangauge];
 }
@@ -825,7 +825,7 @@ static NSString *const kYoudaoDictURL = @"https://dict.youdao.com";
 
 - (void)webViewTranslate:(nonnull void (^)(EZQueryResult *, NSError *_Nullable))completion {
     NSString *wordLink = [self wordLink:self.queryModel];
-    if (!wordLink) {
+    if ([wordLink isEqualToString:kYoudaoTranslatetURL]) {
         NSError *error = EZTranslateError(EZErrorTypeUnsupportedLanguage, nil, nil);
         completion(self.result, error);
         return;
@@ -946,7 +946,9 @@ static NSString *const kYoudaoDictURL = @"https://dict.youdao.com";
     NSData *keyDataMD5Data = [keyData md5];
     NSData *ivDataMD5Data = [ivData md5];
     
-    NSString *decryptedText = [FWEncryptorAES decryptStrFromBase64:encryptedText Key:keyDataMD5Data IV:ivDataMD5Data];
+//    NSString *decryptedText = [FWEncryptorAES decryptStrFromBase64:encryptedText Key:keyDataMD5Data IV:ivDataMD5Data];
+    NSString *decryptedText = [encryptedText decryptAESWithKeyData:keyDataMD5Data ivData:ivDataMD5Data];
+    
     return decryptedText;
 }
 

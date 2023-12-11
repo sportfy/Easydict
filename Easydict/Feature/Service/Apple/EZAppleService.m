@@ -581,11 +581,10 @@ static EZAppleService *_instance;
     NSDictionary<NLLanguage, NSNumber *> *languageProbabilityDict = [recognizer languageHypothesesWithMaximum:5];
     NLLanguage dominantLanguage = recognizer.dominantLanguage;
     
-    // !!!: Numbers will be return empty dict @{}: 729
+    // !!!: languageProbabilityDict will be an empty dict @{} when text is Numbers, such as 729
     if (languageProbabilityDict.count == 0) {
-        EZLanguage firstLanguage = EZConfiguration.shared.firstLanguage;
-        dominantLanguage = [self appleLanguageFromLanguageEnum:firstLanguage];
-        languageProbabilityDict = @{dominantLanguage : @(0)};
+        dominantLanguage = [self detectUnkownText:text];
+        languageProbabilityDict = @{ dominantLanguage: @(0) };
     }
     
     CFAbsoluteTime endTime = CFAbsoluteTimeGetCurrent();
@@ -597,6 +596,19 @@ static EZAppleService *_instance;
     }
     
     return languageProbabilityDict;
+}
+
+- (NLLanguage)detectUnkownText:(NSString *)text {
+    NLLanguage language = NLLanguageEnglish;
+    // 729
+    if ([text isNumbers]) {
+        EZLanguage firstLanguage = EZConfiguration.shared.firstLanguage;
+        language = [self appleLanguageFromLanguageEnum:firstLanguage];
+    }
+    
+    // 𝙘𝙝𝙚𝙖𝙥
+    
+    return language;
 }
 
 // designatedLanguages is supportLanguagesDictionary remove some languages
@@ -712,16 +724,28 @@ static EZAppleService *_instance;
         NSLog(@"---> Apple detect: %@", ezLanguage);
     }
     
-    // Apple may mistakenly detect French word 'testant' as English, so we need to check it.
-    for (NLLanguage language in sortedLanguages) {
-        EZLanguage ezLang = [self languageEnumFromAppleLanguage:language];
-        NSString *sepllCheckerLanguage = [[self spellCheckerLanguagesDictionary] objectForKey:ezLang];
-        if (sepllCheckerLanguage && [text isSpelledCorrectly:sepllCheckerLanguage]) {
-            NSLog(@"Spell check language: %@", ezLang);
-            return ezLang;
+    /**
+     Apple may mistakenly detect French word 'testant' as English, so we need to check it.
+     
+     !!!: Spell checker should only use in word, the following 'Indonesian' sentence was checked as 'English':
+     
+     Ukraina mungkin mendapatkan baterai Patriot lainnya.
+     */
+    if ([text isWord]) {
+        for (NLLanguage language in sortedLanguages) {
+            EZLanguage ezLang = [self languageEnumFromAppleLanguage:language];
+            NSString *spellCheckerLanguage = [[self spellCheckerLanguagesDictionary] objectForKey:ezLang];
+            // If text language is not in the list of languages that support checking spelling, such as Indonesian, break.
+            if (!spellCheckerLanguage) {
+                break;
+            }
+            
+            if ([text isSpelledCorrectly:spellCheckerLanguage]) {
+                NSLog(@"Spell check language: %@", ezLang);
+                return ezLang;
+            }
         }
     }
-    
     NSLog(@"Spell check failed, use Most Confident Language: %@", ezLanguage);
     
     return ezLanguage;
@@ -1436,7 +1460,8 @@ static EZAppleService *_instance;
         return NO;
     }
     
-    if (endWithTerminatorCharLineCount == 0 && lineCount >= 6) {
+    // Fix OCR English https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/GAGvIQ_bIAA5Q_Q-1701789702.jpeg
+    if (endWithTerminatorCharLineCount == 0 && lineCount >= 6 && numberOfPunctuationMarksPerLine <= 1.5) {
         return YES;
     }
     
