@@ -212,10 +212,11 @@
         EZDeepLTranslationAPIKey,
         EZNiuTransAPIKey,
         EZCaiyunToken,
+        EZTencentSecretId,
+        EZTencentSecretKey,
+        EZBingCookieKey,
 
         EZIntelligentQueryModeKey,
-        
-        EZBingCookieKey,
     ];
     
     return readWriteKeys;
@@ -232,7 +233,7 @@
         
     ];
     
-    return actionKeys;;
+    return actionKeys;
 }
 
 - (void)restartApplication {

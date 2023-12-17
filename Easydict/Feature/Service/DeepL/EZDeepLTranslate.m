@@ -8,7 +8,7 @@
 
 #import "EZDeepLTranslate.h"
 #import "EZWebViewTranslator.h"
-#import "EZTranslateError.h"
+#import "EZError.h"
 #import "EZQueryResult+EZDeepLTranslateResponse.h"
 
 static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
@@ -129,10 +129,6 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
 }
 
 - (void)translate:(NSString *)text from:(EZLanguage)from to:(EZLanguage)to completion:(void (^)(EZQueryResult *, NSError *_Nullable))completion {
-    if ([self prehandleQueryTextLanguage:text from:from to:to completion:completion]) {
-        return;
-    }
-    
     if (self.apiType == EZDeepLTranslationAPIWebFirst) {
         [self deepLWebTranslate:text from:from to:to completion:completion];
     } else {
@@ -237,6 +233,7 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
         
         if (error) {
             NSLog(@"deepLWebTranslate error: %@", error);
+            EZError *ezError = [EZError errorWithNSError:error];
             
             BOOL useOfficialAPI = (self.authKey.length > 0) && (self.apiType == EZDeepLTranslationAPIWebFirst);
             if (useOfficialAPI) {
@@ -260,12 +257,12 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
                 if (!jsonError) {
                     NSString *errorMessage = json[@"error"][@"message"];
                     if (errorMessage.length) {
-                        self.result.errorMessage = errorMessage;
+                        ezError.errorDataMessage = errorMessage;
                     }
                 }
             }
 
-            completion(self.result, error);
+            completion(self.result, ezError);
             return;
         }
         

@@ -58,6 +58,7 @@
   - [1. 手动下载安装](#1-手动下载安装)
   - [2. Homebrew 安装](#2-homebrew-安装)
   - [开发者构建](#开发者构建)
+    - [构建环境](#构建环境)
   - [签名问题 ⚠️](#签名问题-️)
 - [使用](#使用)
   - [鼠标划词](#鼠标划词)
@@ -119,26 +120,30 @@ brew install easydict
 
 <p>
 
-1. 下载这个 Repo，然后使用 [Xcode](https://developer.apple.com/xcode/) 打开 `Easydict.xcworkspace` 文件（注意不是 `Easydict.xcodeproj`）。
+1. 下载这个 Repo，然后使用 [Xcode](https://developer.apple.com/xcode/) 打开 `Easydict.xcworkspace` 文件（⚠️⚠️⚠️ 注意不是 `Easydict.xcodeproj` ⚠️⚠️⚠️）。
 2. 使用 `Cmd + R` 编译运行即可。
 
+![image-20231212125308372](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231212125308372-1702356789.png)
 
+以下是可选步骤，仅面向开发协作者。
 
-对于开发协作者，如果想使用自己的苹果账号运行，请修改 Easydict-debug.xcconfig 文件中的 DEVELOPMENT_TEAM 为你自己的 Apple Team ID（你可以登录苹果开发者网站找到它），CODE_SIGN_IDENTITY 改为 Apple Development。
+如果经常需要调试一些权限相关的功能，例如取词或 OCR，可选择使用自己的苹果账号运行，请修改 `Easydict-debug.xcconfig` 文件中的 `DEVELOPMENT_TEAM` 为你自己的 Apple Team ID（你可以登录苹果开发者网站找到它），`CODE_SIGN_IDENTITY` 改为 Apple Development。
 
-注意不要提交 Easydict-debug.xcconfig 文件，你可以使用下面 git 命令忽略这个文件的本地修改
+注意不要提交 `Easydict-debug.xcconfig` 文件，你可以使用下面 git 命令忽略这个文件的本地修改
 
 ```bash
 git update-index --skip-worktree Easydict-debug.xcconfig
 ```
 
-构建环境：Xcode 13+, macOS Big Sur 11.3+。为避免不必要的问题，建议使用最新的 Xcode 和 macOS 版本 https://github.com/tisfeng/Easydict/issues/79
+#### 构建环境
+
+Xcode 13+, macOS Big Sur 11.3+。为避免不必要的问题，建议使用最新的 Xcode 和 macOS 版本 https://github.com/tisfeng/Easydict/issues/79
 
 >[!NOTE]
 > 由于最新代码使用了 String Catalog 功能，因此需要 Xcode 15+ 才能编译。
 > 如果你的 Xcode 版本较低，请使用 [xcode-14](https://github.com/tisfeng/Easydict/tree/xcode-14) 分支，注意这是一个固定版本分支，不受维护。
 
-如果运行遇到下面错误，请尝试更新 CocoaPods，然后 `pod install`。
+如果运行遇到下面错误，请尝试升级 CocoaPods 到最新版本，然后执行 `pod install`。
 
 >  [DT_TOOLCHAIN_DIR cannot be used to evaluate LD_RUNPATH_SEARCH_PATHS, use TOOLCHAIN_DIR instead](https://github.com/CocoaPods/CocoaPods/issues/12012)
 
@@ -538,45 +543,22 @@ Easydict 支持 URL scheme 快速查询：`easydict://query?text=xxx`，如 `eas
 
 ## 配合 PopClip 使用
 
-你需要先安装 [PopClip](https://pilotmoon.com/popclip/)，然后选中以下代码块，`PopClip` 会显示 "安装扩展 Easydict"，点击它即可。（感谢 **[liziqiang](https://github.com/liziqiang)**）
+你需要先安装 [PopClip](https://pilotmoon.com/popclip/)，然后选中以下代码块，`PopClip` 会显示 "安装扩展 Easydict"，点击它即可。
 
 ```shell
-#! /bin/zsh
-# #popclip
-# name: Easydict
-# icon: iconify:ri:translate
-checkAppRunning() {
-  result=$(ps aux | grep Easydict.app | wc -l)
-  echo $result
-}
-# Open Easydict.app, it takes about 1s
-openApp() {
-  open /Applications/Easydict.app
-}
-# Loop wait until Easydict.app is opened
-waitAppOpen() {
-  while true; do
-    result=$(checkAppRunning)
-    if [[ $result -ge 2 ]]; then
-      break
-    fi
-    sleep 0.2  # wait 0.2s at a time
-  done
-}
-# Check if Easydict.app is running
-appResult=$(checkAppRunning)
-if [[ $appResult -lt 2 ]]; then
-  openApp
-  waitAppOpen
-fi
-
-# Use URL scheme to send query text to Easydict.app
-open "easydict://query?text=$POPCLIP_TEXT"
+-- #popclip
+-- name: Easydict
+-- icon: iconify:ri:translate
+-- language: applescript
+tell application "Easydict"
+  launch
+  open location "easydict://query?text={popclip text}"
+end tell
 ```
 
-![image-20231206110523253](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231206110523253-1701831923.png)
+![image-20231215193536900](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231215193536900-1702640137.png)
 
-> 参考：https://www.popclip.app/dev/shell-script-actions
+> 参考：https://www.popclip.app/dev/applescript-actions
 
 ## 设置
 

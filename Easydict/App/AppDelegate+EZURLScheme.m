@@ -85,7 +85,13 @@
 }
 
 - (void)handleURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
-    NSURL *URL = [NSURL URLWithString:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
+    NSString *urlString = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
+    /**
+     hello, #girl, good
+     
+     We need to encode the URL to avoid JLRoutes routing failures.
+     */
+    NSURL *URL = [NSURL URLWithString:urlString.encode];
     
     // easydict://query?text=good
     if ([URL.scheme containsString:EZEasydictScheme]) {

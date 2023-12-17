@@ -57,6 +57,7 @@
   - [1. Manual Installation](#1-manual-installation)
   - [2. Homebrew](#2-homebrew)
   - [Developer Build](#developer-build)
+    - [Build Environment](#build-environment)
   - [Signature Problem ⚠️](#signature-problem-️)
 - [Usage](#usage)
   - [Select text by Mouse](#select-text-by-mouse)
@@ -114,26 +115,28 @@ brew install easydict
 
 If you are a developer, or you are interested in this project, you can also try to build and run it manually. The whole process is very simple, even without knowing macOS development knowledge.
 
-<details> <summary> Build Steps: </summary>
+<details> <summary> Build Steps </summary>
 
 <p>
 
-1. Download this Repo, and then open the `Easydict.xcworkspace` file with [Xcode](https://developer.apple.com/xcode/) (note that it is not `Easydict.xcodeproj`).
+1. Download this Repo, and then open the `Easydict.xcworkspace` file with [Xcode](https://developer.apple.com/xcode/) (⚠️⚠️⚠️ Note that it is not `Easydict.xcodeproj` ⚠️⚠️⚠️).
 2. Use `Cmd + R` to compile and run.
 
+![image-20231212125308372](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231212125308372-1702356789.png)
 
+The following steps are optional and intended for development collaborators only.
 
-For development collaborators who want to run under their own Apple account, change DEVELOPMENT_TEAM in the Easydict-debug.xcconfig file to your own Apple Team ID (you can find it by logging in to the Apple developer website) and CODE_SIGN_IDENTITY to Apple Development.
+If you often need to debug permission-related features, such as word fetching or OCR, you can choose to run it with your own Apple account, change `DEVELOPMENT_TEAM`` in the `Easydict-debug.xcconfig`` file to your own Apple Team ID (you can find it by logging in to the Apple developer website) and `CODE_SIGN_IDENTITY`` to Apple Development.
 
-Be careful not to commit the Easydict-debug.xcconfig file; you can ignore local changes to this file with the following git command
+Be careful not to commit the `Easydict-debug.xcconfig`` file; you can ignore local changes to this file with the following git command
 
 ```bash
 git update-index --skip-worktree Easydict-debug.xcconfig
 ```
 
+#### Build Environment
 
-
-Build environment: Xcode 13+, macOS Big Sur 11.3+. To avoid unnecessary problems, it is recommended to use the latest Xcode and macOS version https://github.com/tisfeng/Easydict/issues/79
+ Xcode 13+, macOS Big Sur 11.3+. To avoid unnecessary problems, it is recommended to use the latest Xcode and macOS version https://github.com/tisfeng/Easydict/issues/79
 
 > [!NOTE]
 > Since the latest code uses the String Catalog feature, Xcode 15+ is required to compile.
@@ -538,45 +541,22 @@ If the query content xxx contains special characters, URL encoding is needed, su
 
 ## Use with PopClip
 
-You need to install [PopClip](https://pilotmoon.com/popclip/) first, then select the following code block, `PopClip` will show "Install Extension Easydict", just click it. (Thanks [liziqiang](https://github.com/liziqiang))
+You need to install [PopClip](https://pilotmoon.com/popclip/) first, then select the following code block, `PopClip` will show "Install Extension Easydict", just click it.
 
 ```shell
-#! /bin/zsh
-# #popclip
-# name: Easydict
-# icon: iconify:ri:translate
-checkAppRunning() {
-  result=$(ps aux | grep Easydict.app | wc -l)
-  echo $result
-}
-# Open Easydict.app, it takes about 1s
-openApp() {
-  open /Applications/Easydict.app
-}
-# Loop wait until Easydict.app is opened
-waitAppOpen() {
-  while true; do
-    result=$(checkAppRunning)
-    if [[ $result -ge 2 ]]; then
-      break
-    fi
-    sleep 0.2  # wait 0.2s at a time
-  done
-}
-# Check if Easydict.app is running
-appResult=$(checkAppRunning)
-if [[ $appResult -lt 2 ]]; then
-  openApp
-  waitAppOpen
-fi
-
-# Use URL scheme to send query text to Easydict.app
-open "easydict://query?text=$POPCLIP_TEXT"
+-- #popclip
+-- name: Easydict
+-- icon: iconify:ri:translate
+-- language: applescript
+tell application "Easydict"
+  launch
+  open location "easydict://query?text={popclip text}"
+end tell
 ```
 
-![image-20231206111101898](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231206111101898-1701832262.png)
+![image-20231215193814591](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231215193814591-1702640294.png)
 
-> Ref: https://www.popclip.app/dev/shell-script-actions
+> Refer: https://www.popclip.app/dev/applescript-actions
 
 ## Settings
 
