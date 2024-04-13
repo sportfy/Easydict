@@ -156,8 +156,6 @@ static NSDictionary *const kQuotesDict = @{
     return isList;
 }
 
-#pragma mark -
-
 #pragma mark - Check if text is a word, or phrase
 
 - (EZQueryTextType)queryTypeWithLanguage:(EZLanguage)language maxWordCount:(NSInteger)maxWordCount {
@@ -233,8 +231,12 @@ static NSDictionary *const kQuotesDict = @{
 }
 
 - (BOOL)isEnglishWord {
+    return [self isEnglishWordWithMaxWordLength:EZEnglishWordMaxLength];
+}
+
+- (BOOL)isEnglishWordWithMaxWordLength:(NSUInteger)maxWordLength {
     NSString *text = [self tryToRemoveQuotes];
-    if (text.length > EZEnglishWordMaxLength) {
+    if (text.length > maxWordLength) {
         return NO;
     }
     
@@ -244,16 +246,11 @@ static NSDictionary *const kQuotesDict = @{
 }
 
 - (BOOL)isEnglishPhrase {
-    if (self.length > EZEnglishWordMaxLength) {
-        return NO;
-    }
-    
-    NSInteger wordCount = [self wordCount];
-    if (wordCount <= 2) {
-        return YES;
-    }
-    
-    return NO;
+    // hello word
+    NSString *text = [self stringByReplacingOccurrencesOfString:@" " withString:@""];
+    BOOL isEnglishPhraseLength = [text isEnglishWordWithMaxWordLength:EZEnglishWordMaxLength * 2];
+    BOOL isPhraseWordCount = [self wordCount] <= 2;
+    return isEnglishPhraseLength && isPhraseWordCount;
 }
 
 - (BOOL)isWord {
@@ -420,38 +417,56 @@ static NSDictionary *const kQuotesDict = @{
 #pragma mark - Handle extra quotes.
 
 - (BOOL)hasPrefixQuote {
-    if ([self prefixQuote]) {
+    if ([self prefixQuote].length) {
         return YES;
     }
     return NO;
 }
 
 - (BOOL)hasSuffixQuote {
-    if ([self suffixQuote]) {
+    if ([self suffixQuote].length) {
         return YES;
     }
     return NO;
 }
 
 - (NSString *)prefixQuote {
+    /**
+     Creativity is intelligence having fun. Albert Einstein
+     
+     """
+     创造力是智力在玩耍。——阿尔伯特·爱因斯坦
+     """
+     */
     NSArray *leftQuotes = kQuotesDict.allKeys;
-    for (NSString *quote in leftQuotes) {
-        if ([self hasPrefix:quote]) {
-            return quote;
+    NSMutableString *quotes = [NSMutableString string];
+    for (int i = 0; i < self.length; i++) {
+        unichar character = [self characterAtIndex:i];
+        NSString *charString = [NSString stringWithFormat:@"%C", character];
+        if ([leftQuotes containsObject:charString]) {
+            [quotes appendString:charString];
+        } else {
+            break;
         }
     }
-    return nil;
+    return quotes;
 }
 
 - (NSString *)suffixQuote {
     NSArray *rightQuotes = kQuotesDict.allValues;
-    for (NSString *quote in rightQuotes) {
-        if ([self hasSuffix:quote]) {
-            return quote;
+    NSMutableString *quotes = [NSMutableString string];
+    for (int i = (int)self.length - 1; i >= 0; i--) {
+        unichar character = [self characterAtIndex:i];
+        NSString *charString = [NSString stringWithFormat:@"%C", character];
+        if ([rightQuotes containsObject:charString]) {
+            [quotes appendString:charString];
+        } else {
+            break;
         }
     }
-    return nil;
+    return quotes;
 }
+    
 
 - (NSString *)tryToRemovePrefixQuote {
     NSString *prefixQuote = [self prefixQuote];
@@ -495,18 +510,26 @@ static NSDictionary *const kQuotesDict = @{
 }
 
 - (NSString *)removeStartAndEndWith:(NSString *)start end:(NSString *)end {
-    if ([self isStartAndEndWith:start end:end]) {
-        return [self substringWithRange:NSMakeRange(start.length, self.length - start.length - end.length)];
+    /**
+     Fix crash
+     
+     SIGABRT: -[NSTaggedPointerString substringWithRange:]: Range {2, 18446744073709551614} out of bounds; string length 2
+     */
+    NSInteger substringLength = self.length - start.length - end.length;
+    if ([self isStartAndEndWith:start end:end] && substringLength > 0) {
+        return [self substringWithRange:NSMakeRange(start.length, substringLength)];
     }
     return self;
 }
 
 - (NSString *)tryToRemoveQuotes {
-    NSArray *quotes = [kQuotesDict allKeys];
     NSString *text = self;
-    for (NSString *quote in quotes) {
-        text = [text removeStartAndEndWith:quote end:kQuotesDict[quote]];
+    NSString *prefixQuote = [self prefixQuote];
+    NSString *suffixQuote = [self suffixQuote];
+    if (prefixQuote.length == suffixQuote.length) {
+        text = [text removeStartAndEndWith:prefixQuote end:suffixQuote];
     }
+    
     return text;
 }
 

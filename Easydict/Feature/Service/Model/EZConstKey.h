@@ -28,12 +28,17 @@ static NSString *const EZOpenAIModelKey = @"EZOpenAIModelKey";
 
 
 static NSString *const EZDeepLAuthKey = @"EZDeepLAuthKey";
+static NSString *const EZDeepLTranslateEndPointKey = @"EZDeepLTranslateEndPointKey";
 
 static NSString *const EZBingCookieKey = @"EZBingCookieKey";
 static NSString *const EZNiuTransAPIKey = @"EZNiuTransAPIKey";
 static NSString *const EZCaiyunToken = @"EZCaiyunToken";
 static NSString *const EZTencentSecretId = @"EZTencentSecretId";
 static NSString *const EZTencentSecretKey = @"EZTencentSecretKey";
+static NSString *const EZGeminiAPIKey = @"EZGeminiAPIKey";
+
+static NSString *const EZAliAccessKeyId = @"EZAliAccessKeyId";
+static NSString *const EZAliAccessKeySecret = @"EZAliAccessKeySecret";
 
 @interface EZConstKey : NSObject
 

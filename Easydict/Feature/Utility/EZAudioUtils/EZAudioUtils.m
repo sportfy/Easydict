@@ -34,7 +34,7 @@
     AudioObjectPropertyAddress address = {
         kAudioDevicePropertyVolumeScalar,
         kAudioDevicePropertyScopeOutput,
-        kAudioObjectPropertyElementMaster};
+        kAudioObjectPropertyElementMain};
     
     if (!AudioObjectHasProperty(outputDeviceID, &address)) {
         NSLog(@"No volume returned for device 0x%0x", outputDeviceID);
@@ -72,7 +72,7 @@
     AudioObjectPropertyAddress address = {
         kAudioDevicePropertyVolumeScalar,
         kAudioDevicePropertyScopeOutput,
-        kAudioObjectPropertyElementMaster};
+        kAudioObjectPropertyElementMain};
     
     if (!AudioObjectHasProperty(outputDeviceID, &address)) {
         NSLog(@"No volume returned for device 0x%0x", outputDeviceID);
@@ -92,7 +92,7 @@
     AudioObjectPropertyAddress address = {
         kAudioHardwarePropertyDefaultOutputDevice,
         kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster};
+        kAudioObjectPropertyElementMain};
     
     UInt32 dataSize = sizeof(AudioDeviceID);
     OSStatus status = AudioObjectGetPropertyData(kAudioObjectSystemObject, &address, 0, NULL, &dataSize, &outputDeviceID);
@@ -156,7 +156,7 @@
     MRMediaRemoteGetNowPlayingApplicationIsPlayingFunction mrMediaRemoteGetNowPlayingApplicationIsPlaying = (MRMediaRemoteGetNowPlayingApplicationIsPlayingFunction)mrMediaRemoteGetNowPlayingApplicationIsPlayingPointer;
     
     mrMediaRemoteGetNowPlayingApplicationIsPlaying(dispatch_get_main_queue(), ^(BOOL playing) {
-//        NSLog(@"isPlaying: %d", playing);
+        NSLog(@"isPlaying: %d", playing);
         completion(playing);
     });
     

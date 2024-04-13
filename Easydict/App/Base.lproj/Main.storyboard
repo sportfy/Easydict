@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22155"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22505"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -308,9 +308,9 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Shortcut" id="YF0-bI-c58">
+                            <menuItem title="Shortcuts" id="YF0-bI-c58">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Shortcut" id="eIi-Yp-9Iw">
+                                <menu key="submenu" title="Shortcuts" id="eIi-Yp-9Iw">
                                     <items>
                                         <menuItem title="Clear Input" keyEquivalent="k" id="rr4-Iy-d6B" userLabel="Clear Input">
                                             <connections>
@@ -361,6 +361,16 @@
                                         <menuItem title="Hide" keyEquivalent="w" toolTip="Hide Window" id="dFr-S6-9m0">
                                             <connections>
                                                 <action selector="closeWindowAction:" target="qM9-fT-Fym" id="ds1-Hv-m1x"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Increase Font Size" keyEquivalent="+" id="525-TU-MBZ">
+                                            <connections>
+                                                <action selector="increaseFontSizeAction:" target="qM9-fT-Fym" id="qRl-Vd-x3P"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Decrease Font Size" keyEquivalent="-" id="K7d-rE-hVh">
+                                            <connections>
+                                                <action selector="decreaseFontSizeAction:" target="qM9-fT-Fym" id="B0U-RG-Wrn"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="QNI-LF-G6c"/>
@@ -706,18 +716,8 @@ DQ
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
-                    <connections>
-                        <outlet property="updaterController" destination="dTQ-Lg-1D6" id="ulf-mx-z8R"/>
-                    </connections>
-                </customObject>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-                <customObject id="dTQ-Lg-1D6" customClass="SPUStandardUpdaterController">
-                    <connections>
-                        <outlet property="updaterDelegate" destination="Voe-Tx-rLC" id="3Ya-Y2-qiK"/>
-                        <outlet property="userDriverDelegate" destination="Voe-Tx-rLC" id="pxF-ql-RTh"/>
-                    </connections>
-                </customObject>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <customObject id="qM9-fT-Fym" customClass="EZMenuItemManager">
                     <connections>
@@ -789,7 +789,7 @@ DQ
                         <menuItem title="检查更新" id="GQ2-WA-9QB">
                             <modifierMask key="keyEquivalentModifierMask"/>
                             <connections>
-                                <action selector="checkForUpdates:" target="dTQ-Lg-1D6" id="ydL-Jy-6z2"/>
+                                <action selector="checkForUpdateItem:" target="qM9-fT-Fym" id="m6i-mV-Hiy"/>
                             </connections>
                         </menuItem>
                         <menuItem title="帮助" id="ICB-w8-IqK">

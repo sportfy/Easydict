@@ -12,6 +12,7 @@
 #import "EZBingLookupModel.h"
 #import "EZConfiguration.h"
 #import "NSString+EZUtils.h"
+#import "Easydict-Swift.h"
 
 @interface EZBingService ()
 @property (nonatomic, strong) EZBingRequest *request;
@@ -32,7 +33,7 @@
 #pragma mark - override
 
 - (EZQueryTextType)intelligentQueryTextType {
-    EZQueryTextType type = [EZConfiguration.shared intelligentQueryTextTypeForServiceType:self.serviceType];
+    EZQueryTextType type = [Configuration.shared intelligentQueryTextTypeForServiceType:self.serviceType];
     return type;
 }
 
@@ -103,10 +104,6 @@
 }
 
 - (void)bingTranslate:(NSString *)text useDictQuery:(BOOL)useDictQuery from:(nonnull EZLanguage)from to:(nonnull EZLanguage)to completion:(nonnull void (^)(EZQueryResult *, NSError *_Nullable))completion {
-    if ([self prehandleQueryTextLanguage:text from:from to:to completion:completion]) {
-        return;
-    }
-    
     self.isDictQueryResult = NO;
     if (useDictQuery) {
         [self.request translateTextFromDict:text completion:^(NSDictionary * _Nullable json, NSError * _Nullable error) {
@@ -379,7 +376,7 @@ outer:
                     EZWordPhonetic *phonetic = [EZWordPhonetic new];
                     phonetic.word = word;
                     phonetic.language = EZLanguageEnglish;
-                    phonetic.name = [name isEqualToString:@"US"] ? @"美" : @"英";
+                    phonetic.name = [name isEqualToString:@"US"] ? NSLocalizedString(@"us_phonetic", nil) : NSLocalizedString(@"uk_phonetic", nil);
                     phonetic.value = fragments.firstObject[@"text"];
                     phonetic.speakURL = [name isEqualToString:@"US"] ? usAudioUrl : [usAudioUrl stringByReplacingOccurrencesOfString:@"tom" withString:@"george"];
                     phonetic.accent = name;

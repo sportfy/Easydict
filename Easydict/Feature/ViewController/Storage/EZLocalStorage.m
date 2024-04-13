@@ -62,12 +62,26 @@ static EZLocalStorage *_instance;
         EZWindowType windowType = [number integerValue];
         for (EZServiceType serviceType in allServiceTypes) {
             EZServiceInfo *serviceInfo = [self serviceInfoWithType:serviceType windowType:windowType];
+            
+            // New service.
             if (!serviceInfo) {
                 serviceInfo = [[EZServiceInfo alloc] init];
                 serviceInfo.type = serviceType;
                 serviceInfo.enabled = YES;
+                serviceInfo.enabledQuery = YES;
 
-                // Mini type should keep concise, services <= 4
+                /**
+                 Fix https://github.com/tisfeng/Easydict/issues/269 and https://github.com/tisfeng/Easydict/issues/372
+
+                 If there is a new service, we enable it but disable auto query, and add it to the end of the array.
+                 
+                 If it is the user's first time, auto query should be all allowed.
+                 */
+                if (self.queryCount > 0) {
+                    serviceInfo.enabledQuery = NO;
+                }
+
+                // Mini window should keep concise, so default enabled services should <= 4
                 if (windowType == EZWindowTypeMini) {
                     NSArray *defaultEnabledServices = @[
                         EZServiceTypeAppleDictionary,
@@ -78,10 +92,6 @@ static EZLocalStorage *_instance;
                     serviceInfo.enabled = [defaultEnabledServices containsObject:serviceType];
                 }
 
-                // There is a very small probability that Volcano webView translator will crash.
-                if (serviceType != EZServiceTypeVolcano) {
-                    serviceInfo.enabledQuery = YES;
-                }
                 [self setServiceInfo:serviceInfo windowType:windowType];
             }
         }
@@ -101,7 +111,7 @@ static EZLocalStorage *_instance;
         if (![allStoredServiceTypes isEqualToArray:allServiceTypes]) {
             for (EZServiceType type in allServiceTypes) {
                 if ([allStoredServiceTypes indexOfObject:type] == NSNotFound) {
-                    [array insertObject:type atIndex:0];
+                    [array addObject:type];
                 }
             }
         }
@@ -201,7 +211,7 @@ static EZLocalStorage *_instance;
     /**
      例如腾讯翻译每月有500万免费字符，假如当前有1000个用户，则每人可以使用字符数为：500万/1000 = 5千
      */
-    CGFloat freeCount = [service totalFreeQueryCharacterCount] / kTotalUserCount;
+    CGFloat freeCount = [service totalFreeQueryCharacterCount] * 0.9 / kTotalUserCount;
     return record.queryCharacterCount < freeCount;
 }
 

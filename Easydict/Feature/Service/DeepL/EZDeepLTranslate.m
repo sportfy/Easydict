@@ -18,7 +18,7 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
 @property (nonatomic, strong) EZWebViewTranslator *webViewTranslator;
 
 @property (nonatomic, copy) NSString *authKey;
-
+@property (nonatomic, copy) NSString *deepLTranslateEndPointKey;
 @property (nonatomic, assign) EZDeepLTranslationAPI apiType;
 
 @end
@@ -43,13 +43,21 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
 }
 
 - (NSString *)authKey {
+    // easydict://writeKeyValue?EZDeepLAuthKey=xxx
     NSString *authKey = [[NSUserDefaults standardUserDefaults] stringForKey:EZDeepLAuthKey] ?: @"";
     return authKey;
 }
 
 - (EZDeepLTranslationAPI)apiType {
+    // easydict://writeKeyValue?EZDeepLTranslationAPIKey=xxx
     EZDeepLTranslationAPI type = [[NSUserDefaults mm_readString:EZDeepLTranslationAPIKey defaultValue:@"0"] integerValue];
     return type;
+}
+
+- (NSString *)deepLTranslateEndPointKey {
+    // easydict://writeKeyValue?EZDeepLTranslateEndPointKey=xxx
+    NSString *endPointURL = [[NSUserDefaults standardUserDefaults] stringForKey:EZDeepLTranslateEndPointKey] ?: @"";
+    return endPointURL;
 }
 
 #pragma mark - 重写父类方法
@@ -318,15 +326,21 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
     NSString *host = isFreeKey ? @"https://api-free.deepl.com": @"https://api.deepl.com";
     NSString *url = [NSString stringWithFormat:@"%@/v2/translate", host];
     
-    NSDictionary *params = @{
-        @"auth_key" : self.authKey,
-        @"text" : text,
-        @"source_lang" : souceLangCode,
-        @"target_lang" : targetLangCode
-    };
+    if (self.deepLTranslateEndPointKey.length) {
+        url = self.deepLTranslateEndPointKey;
+    }
     
+    NSDictionary *params = @{
+        @"text": text,
+        @"source_lang": souceLangCode,
+        @"target_lang": targetLangCode
+    };
+                
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.session.configuration.timeoutIntervalForRequest = EZNetWorkTimeoutInterval;
+    
+    NSString *authorization = [NSString stringWithFormat:@"DeepL-Auth-Key %@", self.authKey];
+    [manager.requestSerializer setValue:authorization forHTTPHeaderField:@"Authorization"];
     
     CFAbsoluteTime startTime = CFAbsoluteTimeGetCurrent();
 
@@ -353,7 +367,9 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
             return;
         }
         
-        completion(self.result, error);
+        EZError *ezError = [EZError errorWithNSError:error];
+        
+        completion(self.result, ezError);
     }];
     
     [self.queryModel setStopBlock:^{
@@ -374,7 +390,6 @@ static NSString *kDeepLTranslateURL = @"https://www.deepl.com/translator";
      }
      */
     NSString *translatedText = [responseObject[@"translations"] firstObject][@"text"];
-    translatedText = [translatedText.trim removeExtraLineBreaks];
     NSArray *translatedTextArray = [translatedText toParagraphs];
 
     return translatedTextArray;

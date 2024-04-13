@@ -20,7 +20,7 @@
 
 ## Easydict
 
-`Easydict` is a concise and easy-to-use translation dictionary macOS App that allows you to easily and elegantly look up words or translate text. Easydict is ready to use out of the box, can automatically recognize the language of the input text, supports input translate, select translate, and OCR screenshot translate, and can query multiple translation services results at the same time. Currently, it supports [Youdao Dictionary](https://www.youdao.com/), [**🍎 Apple System Dictionary**](./docs/How-to-use-macOS-system-dictionary-in-Easydict-en.md), [**🍎 macOS System Translation**](./docs/How-to-use-macOS-system-dictionary-in-Easydict-zh.md), [OpenAI(ChatGPT)](https://chat.openai.com/), [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.com/), [Bing Translate](https://www.bing.com/translator), [Baidu](https://fanyi.baidu.com/), [Niutrans](https://niutrans.com/), [Lingocloud](https://fanyi.caiyunapp.com/#/) and [Volcano Translation](https://translate.volcengine.com/translate).
+`Easydict` is a concise and easy-to-use translation dictionary macOS App that allows you to easily and elegantly look up words or translate text. Easydict is ready to use out of the box, can automatically recognize the language of the input text, supports input translate, select translate, and OCR screenshot translate, and can query multiple translation services results at the same time. Currently, it supports [Youdao Dictionary](https://www.youdao.com/), [**🍎 Apple System Dictionary**](./docs/How-to-use-macOS-system-dictionary-in-Easydict-en.md), [**🍎 macOS System Translation**](./docs/How-to-use-macOS-system-dictionary-in-Easydict-zh.md), [OpenAI(ChatGPT)](https://chat.openai.com/), [Gemini](https://gemini.google.com/), [DeepL](https://www.deepl.com/translator), [Google](https://translate.google.com/), [Tencent](https://fanyi.qq.com/), [Bing](https://www.bing.com/translator), [Baidu](https://fanyi.baidu.com/), [Niutrans](https://niutrans.com/), [Lingocloud](https://fanyi.caiyunapp.com/#/), [Ali Translate](https://translate.alibaba.com/) and [Volcano Translation](https://translate.volcengine.com/translate).
 
 ![Log](https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/Log-1688378715.png)
 
@@ -41,10 +41,14 @@
 - [x] Support system TTS, along with online services from Bing, Google, Youdao and Baidu Cloud.
 - [x] Support [🍎 Apple System Dictionary](./docs/How-to-use-macOS-system-dictionary-in-Easydict-en.md), support third-party dictionaries with manual mdict dictionaries import functionalities.
 - [x] Support macOS system translation. (_Please see [How to use 🍎 macOS system translation in Easydict?](./docs/How-to-use-macOS-system-dictionary-in-Easydict-en.md)_)
-- [x] Support Youdao Dictionary, DeepL, OpenAI (ChatGPT), Google, Bing, Baidu, Niutrans, Lingocloud and Volcano Translate.
+- [x] Support Youdao Dictionary, DeepL, OpenAI (ChatGPT), Gemini, Google, Tencent, Bing, Baidu, Niutrans, Lingocloud, Ali and Volcano Translate.
 - [x] Support for 48 languages.
 
 **If you like this app, please consider giving it a [Star](https://github.com/tisfeng/Easydict) ⭐️, thanks! (^-^)**
+
+## Swift Refactoring Plan
+
+We plan to refactor the project with Swift. If you are interested in this open source project, familiar with Swift/SwiftUI, welcome to join our development team to improve this project together [#194](https://github.com/tisfeng/Easydict/issues/194).
 
 ---
 
@@ -52,13 +56,13 @@
 
 - [Easydict](#easydict)
 - [Features](#features)
+- [Swift Refactoring Plan](#swift-refactoring-plan)
 - [Table of contents](#table-of-contents)
 - [Installation](#installation)
   - [1. Manual Installation](#1-manual-installation)
   - [2. Homebrew](#2-homebrew)
   - [Developer Build](#developer-build)
     - [Build Environment](#build-environment)
-  - [Signature Problem ⚠️](#signature-problem-️)
 - [Usage](#usage)
   - [Select text by Mouse](#select-text-by-mouse)
   - [About Permissions](#about-permissions)
@@ -68,15 +72,20 @@
 - [Translation Services](#translation-services)
   - [🍎 Apple System Dictionary](#-apple-system-dictionary)
   - [OpenAI (ChatGPT) Translation](#openai-chatgpt-translation)
-    - [Configure APIKey](#configure-apikey)
-    - [Query Mode](#query-mode)
-    - [Customizations](#customizations)
+    - [Using the built-in APIKey](#using-the-built-in-apikey)
+    - [Configure Personal APIKey](#configure-personal-apikey)
+    - [OpenAI Query Mode](#openai-query-mode)
+    - [OpenAI Custom Settings](#openai-custom-settings)
+  - [Gemini Translate](#gemini-translate)
   - [DeepL Translate](#deepl-translate)
     - [Configure AuthKey](#configure-authkey)
+    - [Configure API endpoint](#configure-api-endpoint)
     - [Configure API call method](#configure-api-call-method)
+  - [Tencent Translate](#tencent-translate)
   - [Bing Translate](#bing-translate)
   - [Niutrans](#niutrans)
   - [Lingocloud](#lingocloud)
+  - [Ali Translate](#ali-translate)
 - [Smart query mode](#smart-query-mode)
   - [Query in App](#query-in-app)
 - [URL Scheme](#url-scheme)
@@ -108,7 +117,7 @@ You can install it using one of the following two methods. Support macOS 11.0+
 Thanks to [BingoKingo](https://github.com/tisfeng/Easydict/issues/1#issuecomment-1445286763) for the initial installation version.
 
 ```bash
-brew install easydict
+brew install --cask easydict
 ```
 
 ### Developer Build
@@ -149,36 +158,6 @@ If the run encounters the following error, try updating CocoaPods and then `pod 
 </p>
 
 </details>
-
-### Signature Problem ⚠️
-
-Easydict is open source software and is inherently secure, but due to Apple's strict checking mechanism, you may encounter warning blocks when opening it.
-
-FAQ:
-
-1. If you encounter the following [Cannot open Easydict problem](https://github.com/tisfeng/Easydict/issues/2), please refer to [Open Mac App from an unidentified developer](https://support.apple.com/en-us/guide/mac-help/mh40616/mac)
-
-> Cannot open "Easydict.dmg" because Apple cannot check to see if it contains malware.
-
-<div >
-    <img src="https://github.com/Jerry23011/Easydict/assets/89069957/5ecb4cc7-53e7-45c6-8606-df36cf4adb73" width="30%">
-    <img src="https://github.com/Jerry23011/Easydict/assets/89069957/7c44e542-62f3-458a-abbb-6ae555b743d7"  width="30%">
-    <img src="https://github.com/Jerry23011/Easydict/assets/89069957/060f4927-8df5-4bfd-9283-363cc8d3fa52"  width="30%">
-</div>
-
-<div style="display: flex; justify-content: space-between;">
-  <img src="https://github.com/Jerry23011/Easydict/assets/89069957/eb2852c1-6ffd-4575-8bb0-5c97d451d582" width="100%" />
-</div>
-
-2. If it indicates that the app is corrupted, please refer to [macOS Bypassing Notary and App Signing Methods](https://www.5v13.com/sz/31695.html)
-
-> "Easydict" is corrupted and cannot be opened.
-
-Just type the following command in the terminal and enter the password.
-
-```bash
-sudo xattr -rd com.apple.quarantine /Applications/Easydict.app
-```
 
 ---
 
@@ -333,13 +312,34 @@ For detailed information, please see [How to use macOS system dictionary in Easy
 
 ### OpenAI (ChatGPT) Translation
 
-Version 1.3.0 starts to support OpenAI translation, also supports Azure OpenAI interface, the interface has not been written yet, you need to configure it in the input box of Easydict using the following command method.
+Version 1.3.0 adds support for OpenAI translation, as well as Azure OpenAI interfaces, which require the use of OpenAI API keys.
 
-Please make sure you have an APIKey.
+If you don't have your own OpenAI APIKey, you can use some open source projects to convert third-party LLM interfaces into standard OpenAI interfaces, so that you can use them directly in `Easydict`.
 
-#### Configure APIKey
+For example, [one-api](https://github.com/songquanpeng/one-api), one-api is a good open source project for OpenAI interface management, which supports multiple LLM interfaces, including Azure, Anthropic Claude, Google PaLM 2 & Gemini, Zhupu ChatGLM, Baidu Wenxin Yiyu, Xunfei Xinghuo cognition, Ali Tongyi Qianwen, 360 Zhinao and Tencent Hunyuan, etc., which can be used for secondary distribution management key, only single executable file, Docker image has been packaged, one-click deployment, out of the box.
 
+The [2.6.0](https://github.com/tisfeng/Easydict/releases) version implements a new SwiftUI settings page (macOS 13+ support), which supports configuring the service API key in a GUI way, other system verions need to be configured using commands in Easydict's input box.
+
+> [!NOTE]
+> If your computer hardware supports it, it is recommended to upgrade to the latest macOS system to enjoy a better user experience.
+
+![](https://github.com/tisfeng/Easydict/assets/25194972/5b8f2785-b0ee-4a9e-bd41-1a9dd56b0231)
+
+#### Using the built-in APIKey
+
+Currently Google's Gemini API is free, the translation effect is good, in order to facilitate the use of users, I built-in a key, but please note that the use of this key has some limitations and is not stable, so if you have the ability to deploy one-api, it is recommended to prioritize the use of their own APIKey.
+
+In Beta mode, and no APIKey is set, so the built-in Gemini key will be used automatically.
+
+Write the following command to enable Beta mode
+
+```bash
+easydict://writeKeyValue?EZBetaFeatureKey=1
 ```
+
+#### Configure Personal APIKey
+
+```bash
 easydict://writeKeyValue?EZOpenAIAPIKey=sk-xxx
 ```
 
@@ -348,11 +348,12 @@ easydict://writeKeyValue?EZOpenAIAPIKey=sk-xxx
 </div>
 
 Lookup for APIKey (similar to other keys), if the query succeeds, the result will be written to the clipboard.
-```
+
+```bash
 easydict://readValueOfKey?EZOpenAIAPIKey
 ```
 
-#### Query Mode
+#### OpenAI Query Mode
 
 Currently, OpenAI translation supports three query modes: word lookup, sentence translation, and long-text translation. They are all enabled by default, while words and sentences can be disabled.
 
@@ -364,11 +365,11 @@ Currently, OpenAI translation supports three query modes: word lookup, sentence 
 
 Considering the token cost associated with OpenAI, a default 'Close' option has been implemented. After executing the following command, OpenAI will automatically stop the queries by default, and it will only be queried when the user manually clicks the 'Expand' button.
 
-```
+```bash
 easydict://writeKeyValue?EZOpenAIServiceUsageStatusKey=1
 ```
 
-```
+```bash
 // Disable word lookup
 easydict://writeKeyValue?EZOpenAIDictionaryKey=0
 
@@ -380,22 +381,30 @@ A quick tip: If you only want to exclude occasional sentence analysis without tu
 <img width="475" alt="image" src="https://github.com/tisfeng/Easydict/assets/25194972/b8c2f0e3-a263-42fb-9cb0-efc68b8201c3">
 
 
-#### Customizations
+#### OpenAI Custom Settings
 
 Support custom domains and models
 
-```
+```bash
 //  xxx is the host, the default one is api.openai.com
 easydict://writeKeyValue?EZOpenAIDomainKey=xxx
 
 // xxx is the complete address of the request; for example, https://api.ohmygpt.com/azure/v1/chat/completions
 easydict://writeKeyValue?EZOpenAIEndPointKey=xxx
 
-//  xxx is set to default as gpt-3.5-turbo
+//  xxx is set to default as gpt-3.5-turbo-1106 (currently the cheapest and most practical model)
 easydict://writeKeyValue?EZOpenAIModelKey=xxx
 ```
 
 Since the official OpenAI interface has restrictions on user IPs, if you need a reverse proxy, you can refer to this project [cloudflare-reverse-proxy](https://github.com/gaboolic/cloudflare-reverse-proxy)
+
+### Gemini Translate ##
+
+[Gemini Translation](https://gemini.google.com/) requires an API key, which can be obtained for free on the official website [Console](https://makersuite.google.com/app/apikey).
+
+```bash
+easydict://writeKeyValue?EZGeminiAPIKey=xxx
+```
 
 ### DeepL Translate
 
@@ -410,28 +419,59 @@ If you have DeepL AuthKey, it is recommended to use personal AuthKey, so as to a
 
 Enter the following code in the input box, xxx is your DeepL AuthKey, and then Enter
 
-```
+```bash
 easydict://writeKeyValue?EZDeepLAuthKey=xxx
 ```
+
+#### Configure API endpoint
+
+If you don't have your own AuthKey and need to use DeepL translation a lot, you can consider deploying your own interface service that supports DeepL, or using a third-party service that supports DeepL.
+
+In this case, you need to set a custom DeepL interface address, where the value of EZDeepLTranslateEndPointKey should be the complete request URL, for example, the DeepL official interface is https://api-free.deepl.com/v2/translate. If the custom interface requires AuthKey, the configuration method is the same as before, and the interface parameters are consistent with the DeepL official.
+
+The way to customize the DeepL interface address is equivalent to the DeepL official AuthKey API form in the Easydict program.
+
+```bash
+easydict://writeKeyValue?EZDeepLTranslateEndPointKey=xxx
+```
+
+With the help of the following open source projects, you can deploy a DeepL translation interface service that supports DeepL translation on your own server or Cloudflare:
+
+- [deeplx-for-cloudflare](https://github.com/ifyour/deeplx-for-cloudflare)
+- [DeepLX](https://github.com/OwO-Network/DeepLX)
 
 #### Configure API call method
 
 1. The web version API is used by default, and the personal AuthKey will be used when the web version API fails (if any)
 
-```
+```bash
 easydict://writeKeyValue?EZDeepLTranslationAPIKey=0
 ```
 
 2. Use personal AuthKey first, and use web version API when it fails. If you use DeepL frequently, it is recommended to use this method, which can reduce one failed request and improve response speed.
 
-```
+```bash
 easydict://writeKeyValue?EZDeepLTranslationAPIKey=1
 ```
 
 3. Only use personal AuthKey
 
-```
+```bash
 easydict://writeKeyValue?EZDeepLTranslationAPIKey=2
+```
+
+### Tencent Translate
+
+[Tencent Translate](https://fanyi.qq.com/) requires an APIKey, for ease of use, we have built-in a key, this key has a limit on the amount, not guaranteed to be available all the time.
+
+It is recommended to use your own APIKey, each registered user of Tencent Translate is given 5 million characters of traffic per month, which is enough for daily use.
+
+```bash
+// xxx is the SecretId of Tencent Translate
+easydict://writeKeyValue?EZTencentSecretId=xxx
+
+// xxx is the SecretKey of Tencent Translate
+easydict://writeKeyValue?EZTencentSecretKey=xxx
 ```
 
 ### Bing Translate
@@ -446,7 +486,7 @@ cookieStore.get("MUID").then(result => console.log(encodeURIComponent("MUID=" +r
 
 Finally, use the command to write the cookie in Easydict
 
-```
+```bash
 // xxx is the obtained cookie
 easydict://writeKeyValue?EZBingCookieKey=xxx
 ```
@@ -455,11 +495,11 @@ easydict://writeKeyValue?EZBingCookieKey=xxx
 
 ### Niutrans
 
-[Niutrans](https://niutrans.com/) requires an APIKey, for ease of use, we have built-in a key, this key has a limit on the amount, not guaranteed to be available all the time.
+[Niutrans](https://niutrans.com/) requires an API key, for ease of use, we have built-in a key, this key has a limit on the amount, not guaranteed to be available all the time.
 
-It is recommended to use your own APIKey, each registered user of Niutrans is given 200,000 characters of traffic per day, which is enough for daily use.
+It is recommended to use your own API key, each registered user of Niutrans is given 200,000 characters of traffic per day.
 
-```
+```bash
 // xxx is the APIKey of Niutrans
 easydict://writeKeyValue?EZNiuTransAPIKey=xxx
 ```
@@ -468,11 +508,21 @@ easydict://writeKeyValue?EZNiuTransAPIKey=xxx
 
 [Lingocloud](https://fanyi.caiyunapp.com/#/) needs an Token, for ease of use, we have built-in a token, this token has a limit on the amount, not guaranteed to be available all the time.
 
-It is recommended to use your own Token, each registered user of Lingocloud is given 100,000 characters of traffic per day, which is enough for daily use.
+It is recommended to use your own Token, each registered user of Lingocloud is given 100,000 characters of traffic per day.
 
-```
+```bash
 // xxx is the Token of Lingocloud
 easydict://writeKeyValue?EZCaiyunToken=xxx
+```
+
+### Ali Translate
+[Ali Translate](https://translate.alibaba.com/) requires an API key, for ease of use, we have built-in a key, this key has a limit on the amount, not guaranteed to be available all the time.
+
+It is recommended to use your own API key, each registered user of Ali Translate is given 100,000 characters of traffic per day.
+
+```bash
+easydict://writeKeyValue?EZAliAccessKeyId=xxx
+easydict://writeKeyValue?EZAliAccessKeySecret=xxx
 ```
 
 ## Smart query mode
@@ -496,19 +546,19 @@ For vocabularies, services that support vocabularies lookup work significantly b
 
 By default, all translation services support vocabularies lookup (vocabularies are also a kind of text), users can adjust it manually. For example, to set Google to translate text only, just use the following command to change the property to `translation | sentence`.
 
-```
+```bash
 easydict://writeKeyValue?Google-IntelligentQueryTextType=5  
 ```
 
 Similarly, for some services that support looking up vocabulary and translating text at the same time, such as Youdao Dictionary, you can set its query mode to look up only vocabulary by setting the type to `dictionary`.
 
-```
+```bash
 easydict://writeKeyValue?Youdao-IntelligentQueryTextType=2
 ```
 
 By default, only [Mini Window] is enabled for Smart Query Mode, users can also enable Smart Query Mode manually for [Hover Window]:
 
-```
+```bash
 easydict://writeKeyValue?IntelligentQueryMode-window2=1
 ```
 window1 represents the mini window, while window2 represents hover window, value 0 represents disabled, while 1 represents enabled.
@@ -543,7 +593,7 @@ If the query content xxx contains special characters, URL encoding is needed, su
 
 You need to install [PopClip](https://pilotmoon.com/popclip/) first, then select the following code block, `PopClip` will show "Install Extension Easydict", just click it.
 
-```shell
+```applescript
 -- #popclip
 -- name: Easydict
 -- icon: iconify:ri:translate
@@ -668,6 +718,17 @@ If the PR is about a new feature or involves major changes to the UI, it is reco
 - Screenshot feature is based on [isee15](https://github.com/isee15) 's [Capture-Screen-For-Multi-Screens-On-Mac](https://github.com/isee15/Capture-Screen-For-Multi-Screens-On-Mac), and optimized on this project.
 - Select text feature is referenced from [PopClip](https://pilotmoon.com/popclip/).
 
+<table border="1">
+  <tr>
+    <th>Bob Initial Version </th>
+    <th>Easydict New Version </th>
+  </tr>
+  <tr>
+    <td> <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231224230524141-1703430324.png">
+    <td> <img src="https://raw.githubusercontent.com/tisfeng/ImageBed/main/uPic/image-20231224230545900-1703430346.png">
+  </tr>
+</table>
+
 ## Statement
 
 Easydict is licensed under the [GPL-3.0](https://github.com/tisfeng/Easydict/blob/main/LICENSE) open source license, which is for learning and communication only. Anyone can get this product and source code for free. If you believe that your legal rights have been violated, please contact the [author](https://github.com/tisfeng) immediately. You can use the source code freely, but you must attach the corresponding license and copyright.
@@ -738,6 +799,15 @@ If you don't want your username to be displayed in the list, please choose anony
 | 2023-12-05 | ㅤ hiuxia  | 100 | 感谢这么优秀的软件！|
 | 2023-12-05 | ㅤ——  | 20 |  |
 | 2023-12-07 | 小逗。🎈 | 5 |  |
+| 2023-12-26 | ㅤ Yee  | 5 | 感谢开源 |
+| 2024-01-09 | ㅤ Jack  | 20 | 目前用过最好用的字典软件，谢谢！ |
+| 2024-01-15 | ㅤ | 20 | 感谢开源，感谢有你：） |
+| 2024-01-16 | ㅤ sd  | 5 | 大佬牛逼🐂🍺 |
+| 2024-01-23 | ㅤ | 5 | |
+| 2024-01-28 | ㅤ | 7 | |
+| 2024-01-29 | 大帅ㅤ | 5 | 还没有，但是感受到了用心。|
+| 2024-02-04 | ll | 20 | |
+| 2024-02-10 | 盒子哥 | 100 | |
 
 </p>
 

@@ -1,6 +1,6 @@
 name: Feature request
 description: Request a new feature
-title: "🚀 Feature Request: "
+title: "🚀 Feature Request: {{Please fill in the title, don't leave it blank}}"
 labels: ["enhancement"]
 
 body:
@@ -15,6 +15,8 @@ body:
           required: true
         - label: Easydict has been upgraded to the [latest version](https://github.com/tisfeng/Easydict/releases)
           required: true
+        - label: I understand and agree to the above, and understand that the project maintainer has limited energy, **issues that do not follow the rules may be ignored or closed directly**
+          required: true
 
   - type: textarea
     id: feature_description
@@ -28,9 +30,13 @@ body:
   - type: textarea
     id: feature_usecase
     attributes:
-      label: Use case (optional)
-      description: Please describe the use case of the feature you're requesting, and whether there are any similar app features for reference.
+      label: Use case
+      description: |
+        Please describe the use case of the feature you're requesting, and whether there are any similar app features for reference.
+        If the feature has no actual usage scenarios or is not well understood by the developers it might get deprioritized or even ignored, so be sure to describe it clearly.
       placeholder: Use case
+    validations:
+      required: true
 
   - type: textarea
     id: resolution

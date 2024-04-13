@@ -34,9 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)encode;
 - (NSString *)decode;
 
+/// Only encode if text has not been encoded.
+- (NSString *)encodeSafely;
+
 /// Replace \" with &quot;
 - (NSString *)escapedXMLString;
 
+- (NSString *)unescapedXMLString;
 
 - (void)copyToPasteboard;
 - (void)copyToPasteboardSafely;
@@ -53,6 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSURL *)detectLink;
 
 - (NSString *)md5;
+
+- (NSString *)foldedString;
 
 @end
 

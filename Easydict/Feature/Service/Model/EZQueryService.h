@@ -61,6 +61,8 @@ NS_SWIFT_NAME(QueryService)
 /// Get TTS langauge code.
 - (NSString *)getTTSLanguageCode:(EZLanguage)language;
 
+- (EZQueryResult *)resetServiceResult;
+
 - (void)startQuery:(EZQueryModel *)queryModel completion:(void (^)(EZQueryResult *result, NSError *_Nullable error))completion;
 
 @end
@@ -112,6 +114,7 @@ NS_SWIFT_NAME(QueryService)
 
 - (BOOL)needPrivateAPIKey;
 
+/// Default is 100 * 10000
 - (NSInteger)totalFreeQueryCharacterCount;
 
 /// 获取文本的语言

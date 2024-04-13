@@ -7,7 +7,8 @@
 //
 
 #import "DarkModeManager.h"
-
+#import "EZConfiguration.h"
+#import "Easydict-Swift.h"
 
 @interface DarkModeManager ()
 
@@ -21,7 +22,6 @@
 singleton_m(DarkModeManager);
 
 + (void)load {
-    [[self manager] setup];
     [[self manager] monitor];
 }
 
@@ -40,20 +40,35 @@ singleton_m(DarkModeManager);
     }];
 }
 
-- (void)setup {
-    [self updateDarkMode];
-}
-
-
 - (void)monitor {
     NSString *const darkModeNotificationName = @"AppleInterfaceThemeChangedNotification";
-    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(updateDarkMode) name:darkModeNotificationName object:nil];
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(themeDidChange) name:darkModeNotificationName object:nil];
 }
 
-- (void)updateDarkMode {
+- (void)themeDidChange {
+    [self updateDarkMode:Configuration.shared.appearance];
+}
+
+- (void)updateDarkMode:(NSInteger)apperance {
     BOOL isDarkMode = [self isDarkMode];
     NSLog(@"%@", isDarkMode ? @"深色模式" : @"浅色模式");
-    self.systemDarkMode = isDarkMode;
+    
+    AppearenceType type = apperance;
+    switch (type) {
+        case AppearenceTypeDark:
+            self.systemDarkMode = true;
+            break;
+        case AppearenceTypeLight:
+            self.systemDarkMode = false;
+            break;
+        case AppearenceTypeFollowSystem:
+            self.systemDarkMode = isDarkMode;
+            break;
+        default:
+            break;
+    }
+    
+    [AppearenceHelper.shared updateAppApperance:type];
 }
 
 - (BOOL)isDarkMode {

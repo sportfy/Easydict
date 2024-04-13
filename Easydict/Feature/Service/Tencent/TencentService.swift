@@ -7,6 +7,7 @@
 //
 
 import Alamofire
+import Defaults
 import Foundation
 
 @objc(EZTencentService)
@@ -26,7 +27,7 @@ public final class TencentService: QueryService {
     override public func supportLanguagesDictionary() -> MMOrderedDictionary<AnyObject, AnyObject> {
         // TODO: Replace MMOrderedDictionary in the API
         let orderedDict = MMOrderedDictionary<AnyObject, AnyObject>()
-        TencentTranslateType.supportLanguagesDictionary.forEach { key, value in
+        for (key, value) in TencentTranslateType.supportLanguagesDictionary {
             orderedDict.setObject(value as NSString, forKey: key.rawValue as NSString)
         }
         return orderedDict
@@ -36,35 +37,35 @@ public final class TencentService: QueryService {
         NSLog("Tencent Translate currently does not support OCR")
         throw QueryServiceError.notSupported
     }
-    
-    public override func needPrivateAPIKey() -> Bool {
+
+    override public func needPrivateAPIKey() -> Bool {
         true
     }
-    
+
     override public func hasPrivateAPIKey() -> Bool {
         if secretId == defaultSecretId, secretKey == defaultSecretKey {
             return false
         }
         return true
     }
-    
-    public override func totalFreeQueryCharacterCount() -> Int {
+
+    override public func totalFreeQueryCharacterCount() -> Int {
         500 * 10000
     }
 
     /**
      For convenience, we provide a default key for users to try out the service.
-     
+
      Please do not abuse it, otherwise it may be revoked.
-     
-     For better experience, please register your own key at https://cloud.tencent.com
+
+     For better experience, please apply for your personal key at https://cloud.tencent.com
      */
     private let defaultSecretId = "7ZdGkHHIx4Nozm4RHib5Jjye5yCefYoxxfSWzMRbKRrHrnSEJaqpypL1yRMoN0E5".decryptAES()
     private let defaultSecretKey = "OLvQKqJoBfrfLLg95ezIQsWymT+2irYbuMLov1cxrtc3a/M2YXCDQ2rpyy/raQ8r".decryptAES()
 
     // easydict://writeKeyValue?EZTencentSecretId=xxx
     private var secretId: String {
-        let secretId = UserDefaults.standard.string(forKey: EZTencentSecretId)
+        let secretId = Defaults[.tencentSecretId]
         if let secretId, !secretId.isEmpty {
             return secretId
         } else {
@@ -74,7 +75,7 @@ public final class TencentService: QueryService {
 
     // easydict://writeKeyValue?EZTencentSecretKey=xxx
     private var secretKey: String {
-        let secretKey = UserDefaults.standard.string(forKey: EZTencentSecretKey)
+        let secretKey = Defaults[.tencentSecretKey]
         if let secretKey, !secretKey.isEmpty {
             return secretKey
         } else {
@@ -82,12 +83,12 @@ public final class TencentService: QueryService {
         }
     }
 
-    public override func translate(_ text: String, from: Language, to: Language, completion: @escaping (EZQueryResult, Error?) -> Void) {
+    override public func translate(_ text: String, from: Language, to: Language, completion: @escaping (EZQueryResult, Error?) -> Void) {
         let transType = TencentTranslateType.transType(from: from, to: to)
         guard transType != .unsupported else {
             let showingFrom = EZLanguageManager.shared().showingLanguageName(from)
             let showingTo = EZLanguageManager.shared().showingLanguageName(to)
-            let error = EZError.init(type: .unsupportedLanguage, description: "\(showingFrom) --> \(showingTo)")
+            let error = EZError(type: .unsupportedLanguage, description: "\(showingFrom) --> \(showingTo)")
             completion(result, error)
             return
         }
@@ -96,7 +97,7 @@ public final class TencentService: QueryService {
             "SourceText": text,
             "Source": transType.sourceLanguage,
             "Target": transType.targetLanguage,
-            "ProjectId": 0
+            "ProjectId": 0,
         ]
 
         let endpoint = "https://tmt.tencentcloudapi.com"
@@ -115,7 +116,8 @@ public final class TencentService: QueryService {
             .validate()
             .responseDecodable(of: TencentResponse.self) { [weak self] response in
                 guard let self else { return }
-                let result = self.result
+                let result = result
+
                 switch response.result {
                 case let .success(value):
                     result.from = from
@@ -125,7 +127,7 @@ public final class TencentService: QueryService {
                     completion(result, nil)
                 case let .failure(error):
                     NSLog("Tencent lookup error \(error)")
-                    let ezError = EZError.init(nsError: error)
+                    let ezError = EZError(nsError: error)
 
                     if let data = response.data {
                         do {

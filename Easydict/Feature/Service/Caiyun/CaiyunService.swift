@@ -7,6 +7,7 @@
 //
 
 import Alamofire
+import Defaults
 import Foundation
 
 @objc(EZCaiyunService)
@@ -26,7 +27,7 @@ public final class CaiyunService: QueryService {
     override public func supportLanguagesDictionary() -> MMOrderedDictionary<AnyObject, AnyObject> {
         // TODO: Replace MMOrderedDictionary.
         let orderedDict = MMOrderedDictionary<AnyObject, AnyObject>()
-        CaiyunTranslateType.supportLanguagesDictionary.forEach { key, value in
+        for (key, value) in CaiyunTranslateType.supportLanguagesDictionary {
             orderedDict.setObject(value as NSString, forKey: key.rawValue as NSString)
         }
         return orderedDict
@@ -37,6 +38,10 @@ public final class CaiyunService: QueryService {
         throw QueryServiceError.notSupported
     }
 
+    override public func hasPrivateAPIKey() -> Bool {
+        token != CaiyunService.defaultTestToken
+    }
+
     private var apiEndPoint = "https://api.interpreter.caiyunai.com/v1/translator"
 
     /// Official Test Token for Caiyun
@@ -44,24 +49,24 @@ public final class CaiyunService: QueryService {
 
     // easydict://writeKeyValue?EZCaiyunToken=
     private var token: String {
-        let token = UserDefaults.standard.string(forKey: EZCaiyunToken)
+        let token = Defaults[.caiyunToken]
         if let token, !token.isEmpty {
             return token
         } else {
             return CaiyunService.defaultTestToken
         }
     }
-    
+
     override public func autoConvertTraditionalChinese() -> Bool {
-        return true
+        true
     }
 
-    public override func translate(_ text: String, from: Language, to: Language, completion: @escaping (EZQueryResult, Error?) -> Void) {
+    override public func translate(_ text: String, from: Language, to: Language, completion: @escaping (EZQueryResult, Error?) -> Void) {
         let transType = CaiyunTranslateType.transType(from: from, to: to)
         guard transType != .unsupported else {
             let showingFrom = EZLanguageManager.shared().showingLanguageName(from)
             let showingTo = EZLanguageManager.shared().showingLanguageName(to)
-            let error = EZError.init(type: .unsupportedLanguage, description: "\(showingFrom) --> \(showingTo)")
+            let error = EZError(type: .unsupportedLanguage, description: "\(showingFrom) --> \(showingTo)")
             completion(result, error)
             return
         }
@@ -80,14 +85,15 @@ public final class CaiyunService: QueryService {
         ]
 
         let request = AF.request(apiEndPoint,
-                   method: .post,
-                   parameters: parameters,
-                   encoding: JSONEncoding.default,
-                   headers: headers)
+                                 method: .post,
+                                 parameters: parameters,
+                                 encoding: JSONEncoding.default,
+                                 headers: headers)
             .validate()
             .responseDecodable(of: CaiyunResponse.self) { [weak self] response in
                 guard let self else { return }
-                let result = self.result
+                let result = result
+
                 switch response.result {
                 case let .success(value):
                     result.from = from
@@ -96,11 +102,8 @@ public final class CaiyunService: QueryService {
                     result.translatedResults = value.target
                     completion(result, nil)
                 case let .failure(error):
-                    let ezError = EZError.init(nsError: error)
-                    if let data = response.data {
-                        ezError?.errorDataMessage = String(data: data, encoding: .utf8);
-                    }
                     NSLog("Caiyun lookup error \(error)")
+                    let ezError = EZError(nsError: error, errorResponseData: response.data)
                     completion(result, ezError)
                 }
             }

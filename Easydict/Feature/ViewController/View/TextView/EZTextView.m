@@ -113,6 +113,11 @@
     NSString *pasteboardString = [pasteboard stringForType:stringType];
     pasteboardString = [pasteboardString trim];
     
+    // pasteboardString may be nil
+    if (!pasteboardString) {
+        return;
+    }
+    
     BOOL enableModifyParagraphSpacing = NO;
     
     // Empty text.
@@ -241,6 +246,11 @@
 }
 
 - (void)setString:(NSString *)string {
+    // Fix: SIGABRT: *** -[EZTextView replaceCharactersInRange:withString:]: nil NSString given.
+    if (!string) {
+        string = @"";
+    }
+    
     [super setString:string];
     [self updatePlaceholderVisibility];
 }

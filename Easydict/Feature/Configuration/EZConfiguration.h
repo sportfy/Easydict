@@ -9,17 +9,32 @@
 #import <Foundation/Foundation.h>
 #import "EZLanguageManager.h"
 #import "EZLayoutManager.h"
+#import <Sparkle/SPUUpdater.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
+FOUNDATION_EXPORT NSString *const kHideMainWindowKey;
+FOUNDATION_EXPORT NSString *const kLaunchAtStartupKey;
+FOUNDATION_EXPORT NSString *const kHideMenuBarIconKey;
+FOUNDATION_EXPORT NSString *const kEnableBetaNewAppKey;
+
 static NSString *const EZQuickLinkButtonUpdateNotification = @"EZQuickLinkButtonUpdateNotification";
 
+static NSString *const EZFontSizeUpdateNotification = @"EZFontSizeUpdateNotification";
+
 static NSString *const EZIntelligentQueryModeKey = @"IntelligentQueryMode";
+
 
 typedef NS_ENUM(NSUInteger, EZLanguageDetectOptimize) {
     EZLanguageDetectOptimizeNone = 0,
     EZLanguageDetectOptimizeBaidu = 1,
     EZLanguageDetectOptimizeGoogle = 2,
+};
+
+typedef NS_ENUM(NSUInteger, EZAppearenceType) {
+    EZAppearenceTypeSystem = 0,
+    EZAppearenceTypeLight = 1,
+    EZAppearenceTypeDark = 2,
 };
 
 @interface EZConfiguration : NSObject
@@ -50,6 +65,7 @@ typedef NS_ENUM(NSUInteger, EZLanguageDetectOptimize) {
 @property (nonatomic, assign) BOOL showEudicQuickLink;
 @property (nonatomic, assign) BOOL showAppleDictionaryQuickLink;
 @property (nonatomic, assign) BOOL hideMenuBarIcon;
+@property (nonatomic, assign) BOOL enableBetaNewApp;
 @property (nonatomic, assign) EZShowWindowPosition fixedWindowPosition;
 @property (nonatomic, assign) EZWindowType mouseSelectTranslateWindowType;
 @property (nonatomic, assign) EZWindowType shortcutSelectTranslateWindowType;
@@ -57,12 +73,20 @@ typedef NS_ENUM(NSUInteger, EZLanguageDetectOptimize) {
 @property (nonatomic, assign) BOOL allowCrashLog;
 @property (nonatomic, assign) BOOL allowAnalytics;
 @property (nonatomic, assign) BOOL clearInput;
+@property (nonatomic, assign) BOOL keepPrevResult;
 
 // TODO: Need to move them. These are read/write properties only and will not be stored locally, only for external use.
 /// Only use when showing NSOpenPanel to select disabled apps.
 @property (nonatomic, assign) BOOL disabledAutoSelect;
 @property (nonatomic, assign) BOOL isRecordingSelectTextShortcutKey;
 
+@property (nonatomic, copy) NSArray <NSNumber *>*fontSizes;
+@property (nonatomic, assign, readonly) CGFloat fontSizeRatio;
+@property (nonatomic, assign) NSInteger fontSizeIndex;
+
+@property (nonatomic, assign) EZAppearenceType appearance;
+
+@property (nonatomic, strong, readonly) SPUUpdater *updater;
 
 + (instancetype)shared;
 + (void)destroySharedInstance;

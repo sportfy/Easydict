@@ -11,12 +11,12 @@
 #import "EZWindowManager.h"
 #import "Snip.h"
 #import "EZShortcut.h"
-#import <SSZipArchive/SSZipArchive.h>
+#import <ZipArchive.h>
 #import "EZRightClickDetector.h"
 #import "EZConfiguration.h"
-
-static CGFloat const kImageMenuItemHeightRatio = 1.4;
-static CGFloat const kTitleMenuItemHeightRatio = 1.2;
+#import "Easydict-Swift.h"
+#import <Sparkle/SPUStandardUpdaterController.h>
+#import <Sparkle/SPUUpdater.h>
 
 @interface EZMenuItemManager () <NSMenuDelegate>
 
@@ -72,7 +72,7 @@ static EZMenuItemManager *_instance;
     if (self.statusItem) {
         return;
     }
-    if (EZConfiguration.shared.hideMenuBarIcon) {
+    if (Configuration.shared.hideMenuBarIcon) {
         return;
     }
     
@@ -83,9 +83,9 @@ static EZMenuItemManager *_instance;
     NSStatusBarButton *button = statusItem.button;
     
 #if DEBUG
-    NSImage *image = [NSImage imageNamed:@"status_icon_debug"];
+    NSImage *image = [NSImage imageNamed:@"rounded_menu_bar_icon"];
 #else
-    NSImage *image = [NSImage imageNamed:@"status_icon"];
+    NSImage *image = [NSImage imageNamed:@"square_menu_bar_icon"];
 #endif
     
     [button setImage:image];
@@ -95,10 +95,7 @@ static EZMenuItemManager *_instance;
     
     self.appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     self.versionItem.title = self.versionTitle;
-    
-    NSArray *items = @[self.versionItem, self.settingsItem, self.checkForUpdateItem, self.helpItem, self.quitItem];
-    [self increaseMenuItemsHeight:items lineHeightRatio:kTitleMenuItemHeightRatio];
-    
+        
     [self updateVersionItem];
 }
 
@@ -184,6 +181,11 @@ static EZMenuItemManager *_instance;
         [Snip.shared stop];
     }
     [EZPreferencesWindowController.shared show];
+}
+
+- (IBAction)checkForUpdateItem:(id)sender {
+    NSLog(@"checkForUpdate");
+    [EZConfiguration.shared.updater checkForUpdates];
 }
 
 - (IBAction)feedbackAction:(NSMenuItem *)sender {
@@ -277,6 +279,15 @@ static EZMenuItemManager *_instance;
     [window.titleBar.appleDictionaryButton openLink];
 }
 
+- (IBAction)increaseFontSizeAction:(NSMenuItem *)sender {
+    Configuration.shared.fontSizeIndex += 1;
+    
+}
+
+- (IBAction)decreaseFontSizeAction:(NSMenuItem *)sender {
+    Configuration.shared.fontSizeIndex -= 1;
+    
+}
 
 #pragma mark - NSMenuDelegate
 
@@ -298,8 +309,6 @@ static EZMenuItemManager *_instance;
             item.keyEquivalent = @"";
             item.keyEquivalentModifierMask = 0;
         }
-        
-        [self increaseMenuItemHeight:item lineHeightRatio:kImageMenuItemHeightRatio];
     };
     
     configItemShortcut(self.selectionItem, EZSelectionShortcutKey);
@@ -307,30 +316,6 @@ static EZMenuItemManager *_instance;
     configItemShortcut(self.inputItem, EZInputShortcutKey);
     configItemShortcut(self.showMiniItem, EZShowMiniShortcutKey);
     configItemShortcut(self.screenshotOCRItem, EZScreenshotOCRShortcutKey);
-}
-
-#pragma mark -
-
-/// Increase menu item height. Ref: https://stackoverflow.com/questions/18031666/nsmenuitem-height
-- (void)increaseMenuItemHeight:(NSMenuItem *)item lineHeightRatio:(CGFloat)lineHeightRatio {
-    NSFont *font = [NSFont systemFontOfSize:[NSFont systemFontSize]];
-    CGFloat fontLineHeight = (font.ascender + fabs(font.descender));
-    CGFloat lineHeight = fontLineHeight * lineHeightRatio;
-    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
-    style.minimumLineHeight = lineHeight;
-    style.maximumLineHeight = lineHeight;
-    CGFloat baselineOffset = (lineHeight - fontLineHeight) / 2;
-    
-    item.attributedTitle = [[NSAttributedString alloc] initWithString:item.title attributes:@{
-        NSParagraphStyleAttributeName: style,
-        NSBaselineOffsetAttributeName: @(baselineOffset)
-    }];
-}
-
-- (void)increaseMenuItemsHeight:(NSArray<NSMenuItem *> *)itmes lineHeightRatio:(CGFloat)lineHeightRatio {
-    for (NSMenuItem *item in itmes) {
-        [self increaseMenuItemHeight:item lineHeightRatio:lineHeightRatio];
-    }
 }
 
 #pragma mark - Fetch Github Repo Info
@@ -343,7 +328,6 @@ static EZMenuItemManager *_instance;
             versionTitle = [NSString stringWithFormat:@"%@  (✨ %@)", self.versionTitle, lastestVersion];
         }
         self.versionItem.title = versionTitle;
-        [self increaseMenuItemHeight:self.versionItem lineHeightRatio:kTitleMenuItemHeightRatio];
     }];
 }
 
